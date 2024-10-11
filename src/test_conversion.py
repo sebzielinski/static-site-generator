@@ -289,6 +289,164 @@ This is a normal text with **bold elements** and 'code blocks'.
         self.assertEqual(blocks, grnd_trth)
                         
 
+    def test_block_to_block_type(self):
+        block = "# This is a heading"
+        grnd_trth = "heading"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = "#This is a NOT a heading"
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = "###### This is a level 6 heading"
+        grnd_trth = "heading"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = "####### This is not a heading"
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''###### This is a level 6 heading
+# This is a normal heading
+This is not a heading
+# normal heading'''
+        # block = "###### This is a level 6 heading\n# This is a normal heading\nThis is not a heading\nJust a paragraph"
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+
+        ### code ### 
+
+        block = "```This is a code block```"
+        grnd_trth = "code"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = "```This is a \nmultiline \ncode block```"
+        grnd_trth = "code"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = "```This is a broken \nmultiline \ncode block```\n```"
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = "bla"
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+
+        ### quote ###
+        
+        block = '''>Test quote
+>without any defects
+>bla'''
+        grnd_trth = "quote"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''>Test quote
+>with some
+defects
+>bla'''
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''asda>Test quote
+>with some defects
+>bla'''
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''>Test quote
+>with some defects
+>bla
+asdas'''
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+
+        ### unordered list ###
+        
+        block = '''* Test quote
+* without any defects
+* bla'''
+        grnd_trth = "unordered_list"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''* Test quote
+* with defects
+bla'''
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = ''' - Test quote
+- with defects
+- bla'''
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''- Test quote
+-with defects
+- bla'''
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+
+        ### ordered list ###
+        block = '''1. Test ol
+2. without any defects
+3. bla'''
+        grnd_trth = "ordered_list"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''1. Test ol
+2. without any defects
+4. bla'''
+        grnd_trth = "paragraph"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = '''1. Test ol
+2. without any defects
+3. bla
+4. sad
+5.  q4
+6. 23
+7. asdhjas
+8. ahdjags
+9. asdjk
+10. ajdsk
+11. asdhjas'''
+        grnd_trth = "ordered_list"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+        block = "1. Test ol\n"
+        for i in range(2, 10020):
+            block += f"{i}. list item\n"
+        grnd_trth = "ordered_list"
+        block_type = conversion.block_to_block_type(block)
+        self.assertEqual(block_type, grnd_trth)
+
+
+
+
 
 if __name__ == "__main__":
     unittest.main()

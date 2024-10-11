@@ -1,6 +1,7 @@
 from textnode import TextNode
 from leafnode import LeafNode
 import re
+import math
 
 text_types = ["text", "bold", "italic", "code", "link", "image"] 
 
@@ -116,4 +117,27 @@ def markdown_to_blocks(md_doc):
     split_result = md_doc.split("\n\n")
     stripped_blocks = [block.strip() for block in split_result if not block.strip() == '']
     return stripped_blocks
+
+def block_to_block_type(block):
+    if re.findall(r"^#{1,6} .*", block, re.M) and not re.findall(r"^((?!# ).)*$", block, re.M):
+        return "heading"
+    if re.findall(r"```[a-z]*\n*[\s\S]*?\n*```", block) == [block]:
+        return "code"
+    if re.findall(r"(?:>.*\n?)+", block) == [block]:
+        return "quote"
+    # if re.search(r"^[*|-] .*", block, re.M) and not re.search(r"^((?![*|-] ).)*$", block, re.M): # if the regex only matches the ul pattern
+    # regex_res = re.findall(r"[*|-] ", block)
+    # print("ORIGINAL BLOCK: ", [block])
+    # print("REGEX: ", re.findall(r"(?:[*|-] .+\n?)+", block))
+    if re.findall(r"(?:[*|-] .+\n?)+", block) == [block]:
+        return "unordered_list"
+    if re.findall(r"(?:\d+\. .+\n?)+", block) == [block]:
+        # check for ascending numbers
+        ol = re.findall(r"(?:\d+\. .+)+", block)
+        for i, li in enumerate(ol):
+            if not int(li[0:math.floor(math.log10(i+1))+1]) == i+1:   # get the right amount of chars from the string via log10. (ex: [10. bla] --> 10, [120. ahj] --> 120)
+                return "paragraph"
+        return "ordered_list"
+
+    return "paragraph" # default return
 
