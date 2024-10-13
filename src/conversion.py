@@ -1,12 +1,14 @@
 from textnode import TextNode
+from blocknode import BlockNode
 from leafnode import LeafNode
+from htmlnode import HTMLNode
+from parentnode import ParentNode
 import re
 import math
 
 text_types = ["text", "bold", "italic", "code", "link", "image"] 
 
 def text_node_to_html_node(text_node):
-
     match text_node.text_type:
         case "text":
             return LeafNode(value=text_node.text)
@@ -22,6 +24,27 @@ def text_node_to_html_node(text_node):
             return LeafNode(tag="img", value="", props={"src": text_node.url, "alt": text_node.text})
     
     raise ValueError
+
+
+def block_node_to_html_node(block_node):
+    match block_node.block_type:
+        case "code":
+            children = [text_node_to_html_node(child) for child in block_node.children]
+            return ParentNode(tag="pre", children=children, props=None)
+        case "quote":
+            return ParentNode()
+
+
+def blocks_to_block_nodes(blocks):
+    block_nodes = []
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        match block_type:
+            case "code":
+                text_list = re.findall(r"```([a-z]*\n*[\s\S]*\n*)```", block)
+                block_nodes.append(BlockNode(block_type="code", children=[TextNode(text_list[0], "code")]))
+
+    return block_nodes
 
     
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -140,4 +163,14 @@ def block_to_block_type(block):
         return "ordered_list"
 
     return "paragraph" # default return
+
+
+
+
+def markdown_to_html_node(md_doc):
+    blocks = markdown_to_blocks(md_doc)
+    for block in blocks:
+        bloc_type = block_to_block_type(block)
+        html_node = HTMLNode(block_type, block, None, None)
+
 

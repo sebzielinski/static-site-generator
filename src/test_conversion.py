@@ -1,5 +1,6 @@
 import unittest
 from textnode import TextNode
+from blocknode import BlockNode
 from leafnode import LeafNode
 import conversion
 
@@ -445,6 +446,18 @@ bla'''
         self.assertEqual(block_type, grnd_trth)
 
 
+    def test_blocks_to_block_nodes(self):
+        blocks = [
+                    "```\nThis is some code\n```",
+                    "```\nThis is\nmultiline\nCode\n```",
+                ]
+
+        block_nodes = conversion.blocks_to_block_nodes(blocks)
+        grnd_trth = [
+                    BlockNode(block_type="code", children=[TextNode("\nThis is some code\n", "code")]),
+                    BlockNode(block_type="code", children=[TextNode("\nThis is\nmultiline\nCode\n", "code")]),
+                ]
+        self.assertEqual(block_nodes, grnd_trth)
 
 
 
